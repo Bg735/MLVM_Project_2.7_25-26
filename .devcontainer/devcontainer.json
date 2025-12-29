@@ -1,0 +1,39 @@
+{
+    "name": "PyTorch 2.9.1 CUDA 13",
+    "image": "pytorch/pytorch:2.9.1-cuda13.0-cudnn9-runtime",
+
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:1": {
+            "installZsh": true,
+            "configureZshAsDefaultShell": true
+        },
+        "ghcr.io/devcontainers/features/python:1": {
+            "installTools": true,
+            "version": "latest"
+        }
+    },
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-toolsai.jupyter"
+            ]
+        },
+        "jetbrains": {
+            "backend": "PyCharm"
+        }
+    },
+
+    "runArgs": [
+        "--gpus=all",            // Abilita l'uso della GPU NVIDIA
+        "--shm-size=8gb",       // Aumenta la memoria condivisa per PyTorch DataLoader
+        "--net=host"             // Facilita la connessione a Jupyter
+    ],
+
+    "postCreateCommand": "pip install jupyter ipywidgets matplotlib pandas",
+
+    "forwardPorts": [8888],
+
+    "remoteUser": "root"
+}
