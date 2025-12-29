@@ -31,7 +31,7 @@
         "--net=host"             // Facilita la connessione a Jupyter
     ],
 
-    "postCreateCommand": "pip install jupyter ipywidgets matplotlib pandas",
+    "postCreateCommand": "pip install jupyter ipywidgets matplotlib pandas scipy",
 
     "forwardPorts": [8888],
 
