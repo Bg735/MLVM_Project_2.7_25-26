@@ -1,3 +1,4 @@
+import glob
 import os
 import pickle
 import numpy as np
@@ -48,7 +49,7 @@ def generate_dynamic_labels(min_distances, thresholds, prediction_horizon=15.0):
     v[1:] = min_distances[1:] - min_distances[:-1]
     proj_dists = min_distances + (v * prediction_horizon)
     for i in range(num_frames):
-        d_eff = max(0, proj_dists[i])
+        d_eff = proj_dists[i]
         if d_eff <= d_dist:
             labels[i] = 2
         elif d_eff <= w_dist:
@@ -58,16 +59,12 @@ def generate_dynamic_labels(min_distances, thresholds, prediction_horizon=15.0):
     return labels
 
 
-def process_and_save_labels(dataset_path, output_root, thresholds, dyn_horizon):
-    static_root = os.path.join(output_root, "static")
-    dynamic_root = os.path.join(output_root, "dynamic")
+def process_and_save_labels(samples_path, labels_path, thresholds, dyn_horizon):
+    static_root = os.path.join(labels_path, "static")
+    dynamic_root = os.path.join(labels_path, "dynamic")
 
-    if not os.path.exists(dataset_path):
-        print(f"ERRORE: La cartella {dataset_path} non esiste.")
-        return
-
-    for sample_name in os.listdir(dataset_path):
-        sample_path = os.path.join(dataset_path, sample_name)
+    for sample_name in os.listdir(samples_path):
+        sample_path = os.path.join(samples_path, sample_name)
         if os.path.isdir(sample_path):
             os.makedirs(os.path.join(static_root, sample_name), exist_ok=True)
             os.makedirs(os.path.join(dynamic_root, sample_name), exist_ok=True)
@@ -87,13 +84,71 @@ def process_and_save_labels(dataset_path, output_root, thresholds, dyn_horizon):
                         print(f"Saved: {sample_name}/{out_name}")
 
 
-if __name__ == "__main__":
-    # Calcolo percorsi assoluti basati sulla posizione di questo file
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    DATASET_DIR = os.path.join(BASE_DIR, "dataset")
-    LABELS_DIR = os.path.join(BASE_DIR, "labels")
+def analyze_dataset_stats(root_dir):
+    print("--- LABEL ANALYSIS ---")
+    label_dirs = ['static', 'dynamic']
 
-    THRESHOLDS = (300.0, 150.0)
+    for l_type in label_dirs:
+        path = os.path.join(root_dir, 'labels', l_type)
+        if not os.path.exists(path):
+            raise OSError(f"Folder {path} not found.")
+
+        all_labels = []
+        npy_files = glob.glob(os.path.join(path, '**/*.npy'), recursive=True)
+
+        print(f"Reading {len(npy_files)} label files for {l_type}...")
+        for f in npy_files:
+            lbls = np.load(f)
+            all_labels.extend(lbls)
+
+        all_labels = np.array(all_labels)
+        if len(all_labels) == 0:
+            OSError("No label found.")
+
+        unique, counts = np.unique(all_labels, return_counts=True)
+        total = sum(counts)
+        print(f"\nStats {l_type.upper()}:")
+        for val, count in zip(unique, counts):
+            name = "SAFE" if val == 0 else "WARNING" if val == 1 else "CRITICAL"
+            print(f"  Class {val} ({name}): {count} ({count / total * 100:.2f}%)")
+
+
+def analyze_distances(root_dir):
+    print("\n--- DISTANCE ANALYSIS ---")
+    samples_dir = os.path.join(root_dir, 'samples')
+
+    all_min_distances = []
+
+    pkl_files = glob.glob(os.path.join(samples_dir, '**/*.pkl'), recursive=True)
+    print(f"Found {len(pkl_files)} .pkl files. Computing minimum distances...")
+
+    for i, pkl_f in enumerate(pkl_files):
+        if i % 10 == 0: print(f"\rProcessed  {i}/{len(pkl_files)}...", end="")
+        h_pts, r_pts = extract_points(pkl_f)
+        if h_pts is None: continue
+
+        num_frames = h_pts.shape[0]
+        for f in range(num_frames):
+            dists = cdist(h_pts[f], r_pts[f], metric='euclidean')
+            min_d = np.min(dists)
+            all_min_distances.append(min_d)
+    print(f"\rProcessed {len(pkl_files)}", end="")
+
+    all_min_distances = np.array(all_min_distances)
+    print(f"\n\nAnalysis based on {len(all_min_distances)} total frames.")
+    print(f"Minimum distance: {np.min(all_min_distances):.2f}")
+    print(f"Average distance: {np.mean(all_min_distances):.2f}")
+
+if __name__ == "__main__":
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    DATASET_DIR = os.path.join(BASE_DIR, 'dataset')
+    SAMPLES_DIR = os.path.join(DATASET_DIR, 'samples')
+    LABELS_DIR = os.path.join(DATASET_DIR, 'labels')
+
+    THRESHOLDS = (350.0, 130.0)
     HORIZON = 15.0
 
-    process_and_save_labels(DATASET_DIR, LABELS_DIR, THRESHOLDS, HORIZON)
+    process_and_save_labels(SAMPLES_DIR, LABELS_DIR, THRESHOLDS, HORIZON)
+
+    analyze_dataset_stats(DATASET_DIR)
+    #analyze_distances(DATASET_DIR)
