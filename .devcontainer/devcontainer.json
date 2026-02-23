@@ -1,3 +1,4 @@
+// Docker container for devices with NVIDIA GPU.
 {
     "name": "PyTorch 2.9.1 CUDA 13",
     "image": "pytorch/pytorch:2.9.1-cuda13.0-cudnn9-runtime",
@@ -26,9 +27,9 @@
     },
 
     "runArgs": [
-        "--gpus=all",            // Abilita l'uso della GPU NVIDIA
-        "--shm-size=8gb",       // Aumenta la memoria condivisa per PyTorch DataLoader
-        "--net=host"             // Facilita la connessione a Jupyter
+        "--gpus=all",
+        "--shm-size=8gb",
+        "--net=host"
     ],
 
     "postCreateCommand": "pip install jupyter ipywidgets matplotlib pandas scipy",
