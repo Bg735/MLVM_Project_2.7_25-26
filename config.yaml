@@ -1,0 +1,15 @@
+model:
+  dropout_rate: 0.2
+
+training:
+  num_epochs: 35
+  batch_size: 128
+  learning_rate: 0.001
+  checkpoint_interval: 5
+  patience: 3
+  load_checkpoint: false
+  use_scheduler: true
+
+data:
+  train_split: 0.7
+  val_split: 0.15
