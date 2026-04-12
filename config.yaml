@@ -1,18 +1,18 @@
 model:
-  dropout_rate: 0.2
+  dropout_rate: 0.3
 
 training:
   num_epochs: 35
   batch_size: 128
-  learning_rate: 0.001
+  learning_rate: 0.002
   checkpoint_interval: 5
   patience: 3
   load_checkpoint: false
-  use_scheduler: false
+  use_scheduler: true
 
 data:
   train_split: 0.7
   val_split: 0.15
   gaussian_noise_mean: 0.0
-  gaussian_noise_std: 0.01
+  gaussian_noise_std: 0.05
   translation_percentage: 0.05
