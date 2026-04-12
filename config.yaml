@@ -8,8 +8,11 @@ training:
   checkpoint_interval: 5
   patience: 3
   load_checkpoint: false
-  use_scheduler: true
+  use_scheduler: false
 
 data:
   train_split: 0.7
   val_split: 0.15
+  gaussian_noise_mean: 0.0
+  gaussian_noise_std: 0.01
+  translation_percentage: 0.05
