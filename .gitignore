@@ -1,2 +1,26 @@
-/.env
-/config.yaml
+# Ambienti virtuali
+.venv/
+venv/
+env/
+
+# Cache di Python
+__pycache__/
+*.pyc
+
+# Dataset e dati generati (modifica i nomi se le tue cartelle si chiamano diversamente)
+dataset/
+samples/
+labels/
+
+# Checkpoint del modello e file binari
+*.pth
+*.pt
+*.pkl
+best_model.pkl
+
+# Report generati automaticamente
+reports/
+*.pdf
+
+# Variabili d'ambiente locali
+.env
