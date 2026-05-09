@@ -1,0 +1,20 @@
+# --- Core Deep Learning ---
+# torch
+# torchvision
+
+# --- Data Science & Metrics ---
+numpy
+scikit-learn
+pandas
+
+# --- Visualization ---
+matplotlib
+seaborn
+
+# --- Configuration & Environment ---
+pyyaml
+python-dotenv
+pydantic
+pydantic-settings
+jupyter
+jupyterlab
