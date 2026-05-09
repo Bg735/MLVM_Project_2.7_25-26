@@ -1,0 +1,51 @@
+{
+    "name": "PyTorch 2.9.1 CUDA 13",
+    "image": "pytorch/pytorch:2.9.1-cuda13.0-cudnn9-runtime",
+
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:1": {
+            "installZsh": true,
+            "configureZshAsDefaultShell": true
+        },
+        "ghcr.io/devcontainers/features/python:1": {
+            "installTools": true,
+            "version": "latest"
+        }
+    },
+
+    "mounts": [
+        // Rende persistente la cache di pip per evitare il download continuo
+        "source=pip-cache,target=/root/.cache/pip,type=volume"
+    ],
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-toolsai.jupyter"
+            ]
+        },
+        "jetbrains": {
+            "backend": "PyCharm",
+            // Istruisce l'IDE a non terminare il container allo spegnimento
+            "shutdownAction": "none"
+        }
+    },
+
+    "runArgs": [
+        "--gpus=all",
+        "--shm-size=8gb",
+        "--net=host"
+    ],
+
+    // Installa solo se non già presenti grazie alla cache montata sopra
+    "postCreateCommand": "pip install jupyter ipywidgets matplotlib scipy",
+
+    "forwardPorts": [8888],
+
+    "remoteUser": "root",
+
+    // Evita la ricostruzione forzata ad ogni avvio se i file non sono cambiati
+    "updateContentCommand": "pip install --upgrade pip",
+    "waitFor": "postCreateCommand"
+}

@@ -1,2 +1,33 @@
-/.env
-/config.yaml
+# --- SISTEMA OPERATIVO ---
+.DS_Store
+**/.DS_Store
+Thumbs.db
+
+# --- IDE (PyCharm, VS Code) ---
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- PYTHON ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+# Ignora il file .env reale, ma tieni .env.example
+.env
+
+# --- DATI E MODELLI (ML Project) ---
+
+best_model.pkl
+
+# Ignora i file di dati temporanei generati
+*.npy
+
+# --- REPORT ---
+# Ignora la cartella dei report automatici [cite: 26, 27]
+reports/
+*.pdf
