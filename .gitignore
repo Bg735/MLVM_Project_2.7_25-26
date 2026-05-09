@@ -24,3 +24,6 @@ reports/
 
 # Variabili d'ambiente locali
 .env
+
+.idea/workspace.xml
+.DS_Store
