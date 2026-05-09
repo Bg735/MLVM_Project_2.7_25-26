@@ -21,15 +21,7 @@ env/
 .env
 
 # --- DATI E MODELLI (ML Project) ---
-# Ignora la cartella del dataset per evitare caricamenti pesanti
-dataset/
-samples/
-labels/
 
-# Ignora i checkpoint e i pesi del modello [cite: 11, 13]
-*.pkl
-*.pth
-*.pt
 best_model.pkl
 
 # Ignora i file di dati temporanei generati
