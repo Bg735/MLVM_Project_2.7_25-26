@@ -4,6 +4,8 @@ import pickle
 import numpy as np
 from scipy.spatial.distance import cdist
 
+STATIC_THRESHOLDS = (350, 130)
+DYNAMIC_THRESHOLDS = (500, 300)
 
 def extract_points(pkl_path):
     try:
@@ -28,38 +30,56 @@ def calculate_min_distances(human_pts, robot_pts):
     return min_dists
 
 
-def generate_static_labels(min_distances, thresholds):
-    w_dist, d_dist = thresholds
-    labels = np.zeros(len(min_distances), dtype=int)
-    for i in range(len(min_distances)):
-        if min_distances[i] <= d_dist:
-            labels[i] = 2
-        elif min_distances[i] <= w_dist:
-            labels[i] = 1
-        else:
-            labels[i] = 0
-    return labels
+def generate_static_labels(min_distances):
+    condlist = [
+        min_distances <= STATIC_THRESHOLDS[1],
+        min_distances <= STATIC_THRESHOLDS[0]
+    ]
+    choicelist = [2, 1]
+    return np.select(condlist, choicelist, default=0)
 
+def static_label(min_distances):
+    if min_distances <= STATIC_THRESHOLDS[1]:
+        label = 2
+    elif min_distances <= STATIC_THRESHOLDS[0]:
+        label = 1
+    else:
+        label = 0
+    return label
 
-def generate_dynamic_labels(min_distances, thresholds, prediction_horizon=15.0):
-    w_dist, d_dist = thresholds
+def generate_dynamic_labels(min_distances):
+    """
+    Usa il TTC (Time to Collision) per generare label predittive.
+    TTC = Distanza / Velocità di avvicinamento.
+    """
     num_frames = len(min_distances)
     labels = np.zeros(num_frames, dtype=int)
+
+    # Calcolo della velocità (variazione di distanza: d_t - d_{t-1})
     v = np.zeros(num_frames)
     v[1:] = min_distances[1:] - min_distances[:-1]
-    proj_dists = min_distances + (v * prediction_horizon)
+
     for i in range(num_frames):
-        d_eff = proj_dists[i]
-        if d_eff <= d_dist:
-            labels[i] = 2
-        elif d_eff <= w_dist:
-            labels[i] = 1
+
+        if v[i] >= 0:
+            ttc = float('inf')
         else:
-            labels[i] = 0
+            ttc = min_distances[i] / abs(v[i])
+
+        if ttc <= DYNAMIC_THRESHOLDS[1] or min_distances[i] <= STATIC_THRESHOLDS[1]:
+            labels[i] = 2  # CRITICAL
+        elif ttc <= DYNAMIC_THRESHOLDS[0] or min_distances[i] <= STATIC_THRESHOLDS[0]:
+            labels[i] = 1  # WARNING
+        else:
+            labels[i] = 0  # SAFE
+
+        if ttc == float('inf') and labels[i] != 0:
+            labels[i] = labels[i]-1
+
     return labels
 
 
-def process_and_save_labels(samples_path, labels_path, thresholds, dyn_horizon):
+def process_and_save_labels(samples_path, labels_path):
     static_root = os.path.join(labels_path, "static")
     dynamic_root = os.path.join(labels_path, "dynamic")
 
@@ -75,8 +95,8 @@ def process_and_save_labels(samples_path, labels_path, thresholds, dyn_horizon):
                     h_pts, r_pts = extract_points(f_path)
                     if h_pts is not None and r_pts is not None:
                         distances = calculate_min_distances(h_pts, r_pts)
-                        s_lbl = generate_static_labels(distances, thresholds)
-                        d_lbl = generate_dynamic_labels(distances, thresholds, dyn_horizon)
+                        s_lbl = generate_static_labels(distances)
+                        d_lbl = generate_dynamic_labels(distances)
 
                         out_name = f"{os.path.splitext(filename)[0]}_labels.npy"
                         np.save(os.path.join(static_root, sample_name, out_name), s_lbl)
@@ -145,10 +165,8 @@ if __name__ == "__main__":
     SAMPLES_DIR = os.path.join(DATASET_DIR, 'samples')
     LABELS_DIR = os.path.join(DATASET_DIR, 'labels')
 
-    THRESHOLDS = (350.0, 130.0)
-    HORIZON = 15.0
 
-    process_and_save_labels(SAMPLES_DIR, LABELS_DIR, THRESHOLDS, HORIZON)
+    process_and_save_labels(SAMPLES_DIR, LABELS_DIR)
 
-    analyze_dataset_stats(DATASET_DIR)
+    #analyze_dataset_stats(DATASET_DIR)
     #analyze_distances(DATASET_DIR)
