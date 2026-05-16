@@ -5,7 +5,9 @@ import numpy as np
 from scipy.spatial.distance import cdist
 
 STATIC_THRESHOLDS = (350, 130)
-DYNAMIC_THRESHOLDS = (500, 300)
+#DYNAMIC_THRESHOLDS = (500, 300)
+DYNAMIC_THRESHOLDS = (1000, 400)  # in seconds (TTC)
+Tc=40  # 1 frame ogni 40ms
 
 def extract_points(pkl_path):
     try:
@@ -64,7 +66,8 @@ def generate_dynamic_labels(min_distances):
         if v[i] >= 0:
             ttc = float('inf')
         else:
-            ttc = min_distances[i] / abs(v[i])
+            ds = v[i] / Tc  # Converti la velocità in unità per secondo
+            ttc = min_distances[i] / abs(ds)
 
         if ttc <= DYNAMIC_THRESHOLDS[1] or min_distances[i] <= STATIC_THRESHOLDS[1]:
             labels[i] = 2  # CRITICAL
