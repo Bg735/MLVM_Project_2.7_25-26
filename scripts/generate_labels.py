@@ -1,13 +1,15 @@
 import glob
 import os
 import pickle
+from typing import Any
+
 import numpy as np
+from numpy import dtype, float64, ndarray
 from scipy.spatial.distance import cdist
 
 STATIC_THRESHOLDS = (350, 130)
-#DYNAMIC_THRESHOLDS = (500, 300)
-DYNAMIC_THRESHOLDS = (1000, 400)  # in seconds (TTC)
-Tc=40  # 1 frame ogni 40ms
+DYNAMIC_THRESHOLDS = (1000, 400)
+Tc = 40  # ms
 
 def extract_points(pkl_path):
     try:
@@ -17,7 +19,7 @@ def extract_points(pkl_path):
         for frame in data:
             h_seq.append(frame[0])
             r_seq.append(frame[1])
-        return np.array(h_seq), np.array(r_seq)
+        return np.array(h_seq, dtype=np.float32), np.array(r_seq, dtype=np.float32)
     except Exception as e:
         print(f"Error extracting {pkl_path}: {e}")
         return None, None
@@ -57,30 +59,37 @@ def generate_dynamic_labels(min_distances):
     num_frames = len(min_distances)
     labels = np.zeros(num_frames, dtype=int)
 
-    # Calcolo della velocità (variazione di distanza: d_t - d_{t-1})
-    v = np.zeros(num_frames)
-    v[1:] = min_distances[1:] - min_distances[:-1]
+    if num_frames == 0:
+        return labels
 
-    for i in range(num_frames):
+    labels[0] = dynamic_label(min_distances[0], min_distances[0])
 
-        if v[i] >= 0:
-            ttc = float('inf')
-        else:
-            ds = v[i] / Tc  # Converti la velocità in unità per secondo
-            ttc = min_distances[i] / abs(ds)
-
-        if ttc <= DYNAMIC_THRESHOLDS[1] or min_distances[i] <= STATIC_THRESHOLDS[1]:
-            labels[i] = 2  # CRITICAL
-        elif ttc <= DYNAMIC_THRESHOLDS[0] or min_distances[i] <= STATIC_THRESHOLDS[0]:
-            labels[i] = 1  # WARNING
-        else:
-            labels[i] = 0  # SAFE
-
-        if ttc == float('inf') and labels[i] != 0:
-            labels[i] = labels[i]-1
+    for i in range(1, num_frames):
+        labels[i] = dynamic_label(
+            current_distance=min_distances[i],
+            previous_distance=min_distances[i - 1]
+        )
 
     return labels
 
+
+def dynamic_label(previous_distance, current_distance):
+    v = current_distance - previous_distance
+
+    if v >= 0:
+        ttc = float('inf')
+    else:
+        ds = v / Tc
+        ttc = current_distance / abs(ds)
+
+    if ttc <= DYNAMIC_THRESHOLDS[1] or current_distance <= STATIC_THRESHOLDS[1]:
+        label = 2
+    elif ttc <= DYNAMIC_THRESHOLDS[0] or current_distance <= STATIC_THRESHOLDS[0]:
+        label = 1
+    else:
+        label = 0
+
+    return label
 
 def process_and_save_labels(samples_path, labels_path):
     static_root = os.path.join(labels_path, "static")
@@ -171,5 +180,5 @@ if __name__ == "__main__":
 
     process_and_save_labels(SAMPLES_DIR, LABELS_DIR)
 
-    #analyze_dataset_stats(DATASET_DIR)
+    analyze_dataset_stats(DATASET_DIR)
     #analyze_distances(DATASET_DIR)
