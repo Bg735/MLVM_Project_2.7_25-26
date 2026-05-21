@@ -3,7 +3,7 @@ model:
       dropout_rate: 0.2
   phase_2:
       dropout_rate: 0.2
-      hidden_dim: 64
+      hidden_dim: 128
       num_layers: 2
 training:
   num_epochs: 35
