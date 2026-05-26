@@ -1,8 +1,10 @@
 model:
   phase_1:
       dropout_rate: 0.2
+      batch_size_1: 128
   phase_2:
       dropout_rate: 0.2
+      batch_size_2: 64
       hidden_dim: 128
       num_layers: 2
 training:
@@ -11,6 +13,7 @@ training:
   learning_rate: 0.001
   checkpoint_interval: 5
   patience: 3
+  seed: 30000000
   load_checkpoint: false
   use_scheduler: true
 data:
