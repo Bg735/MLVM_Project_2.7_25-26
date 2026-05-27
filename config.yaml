@@ -14,7 +14,7 @@ training:
   dynamic:
     dropout_rate: 0.4
     batch_size: 64
-    num_epochs: 45
+    num_epochs: 1
     learning_rate: 0.001
     checkpoint_interval: 5
     patience: 3

@@ -1,5 +1,6 @@
-import datetime
 import os
+from datetime import datetime
+
 import seaborn as sns
 import yaml
 from matplotlib import pyplot as plt
