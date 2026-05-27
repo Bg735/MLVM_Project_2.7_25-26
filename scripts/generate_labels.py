@@ -1,10 +1,8 @@
 import glob
 import os
 import pickle
-from typing import Any
 
 import numpy as np
-from numpy import dtype, float64, ndarray
 from scipy.spatial.distance import cdist
 
 STATIC_THRESHOLDS = (350, 130)
