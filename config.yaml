@@ -13,7 +13,6 @@ training:
   learning_rate: 0.001
   checkpoint_interval: 5
   patience: 3
-  seed: 30000000
   load_checkpoint: false
   use_scheduler: true
 data:
