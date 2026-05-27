@@ -7,17 +7,17 @@ training:
     num_epochs: 45
     learning_rate: 0.001
     checkpoint_interval: 5
-    patience: 3
+    patience: 1
     load_checkpoint: false
     use_scheduler: true
     #seed
   dynamic:
-    dropout_rate: 0.4
+    dropout_rate: 0.2
     batch_size: 64
-    num_epochs: 1
+    num_epochs: 30
     learning_rate: 0.001
     checkpoint_interval: 5
-    patience: 3
+    patience: 1
     load_checkpoint: false
     use_scheduler: true
     #seed
@@ -39,6 +39,4 @@ data:
     gaussian_noise_std: 0.1
     min_scale: 0.95
     max_scale: 1.05
-    occlusion_prob: 0.05
-    blind_distance_value: 5000.0
     window_size: 10
