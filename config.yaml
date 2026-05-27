@@ -1,27 +1,44 @@
-model:
-  phase_1:
-      dropout_rate: 0.2
-      batch_size_1: 128
-  phase_2:
-      dropout_rate: 0.2
-      batch_size_2: 64
-      hidden_dim: 128
-      num_layers: 2
+current_model: dynamic
+
 training:
-  num_epochs: 45
-  batch_size: 64
-  learning_rate: 0.001
-  checkpoint_interval: 5
-  patience: 3
-  load_checkpoint: false
-  use_scheduler: true
+  static:
+    dropout_rate: 0.2
+    batch_size: 128
+    num_epochs: 45
+    learning_rate: 0.001
+    checkpoint_interval: 5
+    patience: 3
+    load_checkpoint: false
+    use_scheduler: true
+    #seed
+  dynamic:
+    dropout_rate: 0.2
+    batch_size: 64
+    num_epochs: 45
+    learning_rate: 0.001
+    checkpoint_interval: 5
+    patience: 3
+    load_checkpoint: false
+    use_scheduler: true
+    #seed
+
 data:
-  train_split: 0.7
-  val_split: 0.15
-  gaussian_noise_mean: 0.0
-  gaussian_noise_std: 0.1
-  min_scale: 0.95
-  max_scale: 1.05
-  occlusion_prob: 0.05
-  blind_distance_value: 5000.0
-  window_size: 10 
+  static:
+    train_split: 0.7
+    val_split: 0.15
+    gaussian_noise_mean: 0.0
+    gaussian_noise_std: 0.1
+    min_scale: 0.95
+    max_scale: 1.05
+    occlusion_prob: 0.05
+    blind_distance_value: 5000.0
+  dynamic:
+    train_split: 0.7
+    val_split: 0.15
+    gaussian_noise_mean: 0.0
+    gaussian_noise_std: 0.1
+    min_scale: 0.95
+    max_scale: 1.05
+    occlusion_prob: 0.05
+    blind_distance_value: 5000.0
+    window_size: 10

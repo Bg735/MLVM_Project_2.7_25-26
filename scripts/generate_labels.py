@@ -52,10 +52,6 @@ def static_label(min_distances):
     return label
 
 def generate_dynamic_labels(min_distances):
-    """
-    Usa il TTC (Time to Collision) per generare label predittive.
-    TTC = Distanza / Velocità di avvicinamento.
-    """
     num_frames = len(min_distances)
     labels = np.zeros(num_frames, dtype=int)
 
